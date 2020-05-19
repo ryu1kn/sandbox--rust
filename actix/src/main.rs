@@ -1,9 +1,15 @@
 use actix_web::{
-    App, Error, HttpResponse, HttpServer, middleware, web,
+    App, HttpResponse, HttpServer, middleware, web
 };
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+struct Health<'a> {
+    status: &'a str
+}
 
 async fn health() -> HttpResponse {
-    HttpResponse::Ok().body("Healthy")
+    HttpResponse::Ok().json(Health { status: "healthy" })
 }
 
 #[actix_rt::main]
@@ -23,7 +29,7 @@ async fn main() -> std::io::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{App, http, test, web};
+    use actix_web::{App, http, test, web, Error};
     use actix_web::dev::Service;
 
     use super::*;
@@ -47,7 +53,7 @@ mod tests {
             _ => panic!("Response error"),
         };
 
-        assert_eq!(response_body, "Healthy");
+        assert_eq!(response_body, r##"{"status":"healthy"}"##);
 
         Ok(())
     }
